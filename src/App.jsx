@@ -5,126 +5,83 @@ import RightSideBar from "./components/RightSideBar";
 import "./App.css";
 
 function App() {
-  const [tasks, setTasks] = useState([
-    {
-      id: 1,
-      title: "Finish Todo List design",
-      status: "todo",
-      dueDate: "2026-08-31",
-      dueTime: "18:00",
-    },
-  ]);
+  const [tasks, setTasks] = useState([]);
   const [activePage, setActivePage] = useState("inbox");
   const [trashTasks, setTrashTasks] = useState([]);
-
-  // Refreshes the app every 30 seconds.
-  // This lets overdue tasks change to Incomplete automatically.
   const [, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 30000);
-
+    const timer = setInterval(() => setCurrentTime(new Date()), 30000);
     return () => clearInterval(timer);
   }, []);
 
   function addTask(title, dueDateTime) {
-    if (!title?.trim() || !dueDateTime) {
-      return;
-    }
+    if (!title?.trim() || !dueDateTime) return;
 
     const [dueDate, dueTime] = dueDateTime.split("T");
-    const newTask = {
-      id: Date.now(),
-      title: title.trim(),
-      status: "todo",
-      dueDate,
-      dueTime,
-    };
-
-    setTasks((prevTasks) => [...prevTasks, newTask]);
+    setTasks((previousTasks) => [
+      ...previousTasks,
+      { id: Date.now(), title: title.trim(), status: "todo", dueDate, dueTime },
+    ]);
   }
 
   function updateDeadline(id, field, value) {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
+    setTasks((previousTasks) =>
+      previousTasks.map((task) =>
         task.id === id ? { ...task, [field]: value } : task
       )
     );
   }
 
   function changeTaskStatus(id, newStatus) {
-    setTasks((prevTasks) =>
-      prevTasks.map((task) =>
+    setTasks((previousTasks) =>
+      previousTasks.map((task) =>
         task.id === id ? { ...task, status: newStatus } : task
       )
     );
   }
 
   function deleteTask(id) {
-    const taskToTrash = tasks.find((task) => task.id === id);
-
-    if (!taskToTrash) {
-      return;
-    }
-
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-    setTrashTasks((prevTrashTasks) => [
-      ...prevTrashTasks,
-      {
-        ...taskToTrash,
-        deletedAt: new Date().toISOString(),
-      },
-    ]);
+    setTasks((previousTasks) => {
+      const task = previousTasks.find((item) => item.id === id);
+      if (task) {
+        setTrashTasks((previousTrash) => [
+          ...previousTrash,
+          { ...task, deletedAt: new Date().toISOString() },
+        ]);
+      }
+      return previousTasks.filter((item) => item.id !== id);
+    });
   }
 
   function restoreTask(id) {
-    const taskToRestore = trashTasks.find((task) => task.id === id);
+    const task = trashTasks.find((item) => item.id === id);
+    if (!task) return;
 
-    if (!taskToRestore) {
-      return;
-    }
-
-    setTrashTasks((prevTrashTasks) =>
-      prevTrashTasks.filter((task) => task.id !== id)
-    );
-    setTasks((prevTasks) => [
-      ...prevTasks,
-      {
-        ...taskToRestore,
-        deletedAt: undefined,
-      },
+    setTrashTasks((previousTrash) => previousTrash.filter((item) => item.id !== id));
+    setTasks((previousTasks) => [
+      ...previousTasks,
+      { ...task, deletedAt: undefined },
     ]);
   }
 
   function deleteForever(id) {
-    setTrashTasks((prevTrashTasks) =>
-      prevTrashTasks.filter((task) => task.id !== id)
-    );
+    setTrashTasks((previousTrash) => previousTrash.filter((task) => task.id !== id));
   }
 
   const visibleTasks = tasks.filter((task) => {
-    if (activePage === "completed") {
-      return task.status === "completed";
-    }
-
+    if (activePage === "completed") return task.status === "completed";
     if (activePage === "today") {
-      const today = new Date().toISOString().split("T")[0];
-      return task.dueDate === today;
+      return task.dueDate === new Date().toISOString().split("T")[0];
     }
-
     if (activePage === "upcoming") {
       return (
         task.dueDate !== "" &&
+        task.dueTime !== "" &&
         new Date(`${task.dueDate}T${task.dueTime}`) > new Date()
       );
     }
-
-    if (activePage === "projects") {
-      return false;
-    }
-
+    if (activePage === "projects") return false;
     return true;
   });
 
