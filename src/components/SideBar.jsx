@@ -8,13 +8,20 @@ function Sidebar({ activePage, setActivePage }) {
   }
 
   return (
-    <aside className="sidebar">
-      <button onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? "← Close" : "☰ Open"}
+    <aside className={`sidebar ${isOpen ? "sidebar-open" : "sidebar-closed"}`}>
+      <button
+        className="sidebar-toggle"
+        type="button"
+        aria-expanded={isOpen}
+        aria-controls="sidebar-content"
+        onClick={() => setIsOpen((open) => !open)}
+      >
+        <span aria-hidden="true">{isOpen ? "←" : "☰"}</span>
+        <span>{isOpen ? "Close menu" : "Open menu"}</span>
       </button>
 
       {isOpen && (
-        <div className="sidebar-content">
+        <div className="sidebar-content" id="sidebar-content">
           <h2>✓ Task Manager</h2>
           <p>Productive management</p>
 

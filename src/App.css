@@ -45,6 +45,31 @@ button {
   border-right: 1px solid var(--line);
 }
 
+.sidebar-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 42px;
+  padding: 9px 12px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
+  color: white;
+  background: var(--accent);
+  font-weight: bold;
+}
+
+.sidebar-toggle:hover,
+.sidebar-toggle:focus-visible {
+  background: #1f5647;
+}
+
+.sidebar-toggle:focus-visible {
+  outline: 3px solid rgba(40, 107, 88, 0.35);
+  outline-offset: 2px;
+}
+
 .sidebar-content h2 {
   margin: 0;
 }
@@ -206,6 +231,7 @@ button {
 
 @media (max-width: 650px) {
   .app { display: block; }
+  .sidebar { padding: 16px; }
   .main-content { padding: 20px; }
   .add-task-form { flex-direction: column; }
 }
